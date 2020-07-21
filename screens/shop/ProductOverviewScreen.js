@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, FlatList, Text, Platform } from 'react-native'
+import { View, StyleSheet, FlatList, Button, Platform } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 
@@ -7,10 +7,17 @@ import HeaderButton from '../../components/UI/HeaderButton'
 import ProductItem from '../../components/shop/ProductItem'
 import * as cartAction from '../../store/actions/cart'
 import { Header } from 'react-native/Libraries/NewAppScreen'
+import Colors from '../../constants/Colors'
 
 const ProductOverviewScreen = (props) => {
   const products = useSelector((state) => state.products.availableProducts)
   const dispatch = useDispatch()
+  const selectItem = (id, title) => {
+    props.navigation.navigate('ProductDetail', {
+      productId: id,
+      productTitle: title,
+    })
+  }
   return (
     <View>
       <FlatList
@@ -21,16 +28,25 @@ const ProductOverviewScreen = (props) => {
             image={itemData.item.imageUrl}
             title={itemData.item.title}
             price={itemData.item.price}
-            onViewDetail={() => {
-              props.navigation.navigate('ProductDetail', {
-                productId: itemData.item.id,
-                productTitle: itemData.item.title,
-              })
+            onSelect={() => {
+              selectItem(itemData.item.id, itemData.item.title)
             }}
-            onAddToCart={() => {
-              dispatch(cartAction.addToCart(itemData.item))
-            }}
-          />
+          >
+            <Button
+              color={Colors.primary}
+              title="View Details"
+              onPress={() => {
+                selectItem(itemData.item.id, itemData.item.title)
+              }}
+            />
+            <Button
+              color={Colors.primary}
+              title="Add to cart"
+              onPress={() => {
+                dispatch(cartAction.addToCart(itemData.item))
+              }}
+            />
+          </ProductItem>
         )}
       />
     </View>
