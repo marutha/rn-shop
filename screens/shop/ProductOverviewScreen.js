@@ -3,9 +3,9 @@ import { View, StyleSheet, FlatList, Text, Platform } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 
+import HeaderButton from '../../components/UI/HeaderButton'
 import ProductItem from '../../components/shop/ProductItem'
 import * as cartAction from '../../store/actions/cart'
-import HeaderButton from '../../components/UI/HeaderButton'
 import { Header } from 'react-native/Libraries/NewAppScreen'
 
 const ProductOverviewScreen = (props) => {
@@ -47,6 +47,17 @@ ProductOverviewScreen.navigationOptions = (navData) => {
           iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
           onPress={() => {
             navData.navigation.navigate('Cart')
+          }}
+        />
+      </HeaderButtons>
+    ),
+    headerLeft: () => (
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="cart"
+          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+          onPress={() => {
+            navData.navigation.toggleDrawer()
           }}
         />
       </HeaderButtons>

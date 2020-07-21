@@ -6,6 +6,7 @@ import Colors from '../../constants/Colors'
 
 import CartItem from '../../components/shop/CartItem'
 import { removeFromCart } from '../../store/actions/cart'
+import { addOrder } from '../../store/actions/order'
 
 const CartScreen = (props) => {
   const dispatch = useDispatch()
@@ -23,7 +24,7 @@ const CartScreen = (props) => {
     }
     return transformedCartItems
   })
-  console.log('trans', cartItems)
+
   return (
     <View style={styles.screen}>
       <View style={styles.summary}>
@@ -34,6 +35,9 @@ const CartScreen = (props) => {
           color={Colors.accent}
           title="Order Now"
           disabled={cartItems.length === 0}
+          onPress={() => {
+            dispatch(addOrder(cartItems, total))
+          }}
         />
       </View>
       <View>
@@ -54,6 +58,10 @@ const CartScreen = (props) => {
       </View>
     </View>
   )
+}
+
+CartScreen.navigationOptions = {
+  headerTitle: 'Your Cart',
 }
 
 const styles = StyleSheet.create({
