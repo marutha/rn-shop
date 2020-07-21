@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 
 const CartItem = (props) => {
+  console.log('cartItem', props)
   return (
     <View style={styles.cartItem}>
       <Text style={styles.itemData}>

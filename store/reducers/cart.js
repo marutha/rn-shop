@@ -1,4 +1,4 @@
-import { ADD_TO_CART } from '../actions/cart'
+import { ADD_TO_CART, REMOVE_FROM_CART } from '../actions/cart'
 import cartItem from '../../models/cart-item'
 
 const initialState = {
@@ -7,6 +7,7 @@ const initialState = {
 }
 
 const cartReducer = (state = initialState, action) => {
+  console.log('upd1', state)
   switch (action.type) {
     case ADD_TO_CART:
       const prod = action.product
@@ -31,7 +32,30 @@ const cartReducer = (state = initialState, action) => {
         totalSum: state.totalSum + prodPrice,
       }
       break
-
+    case REMOVE_FROM_CART:
+      const selectedCartItem = state.items[action.pid]
+      console.log('selected', selectedCartItem)
+      const currentQty = selectedCartItem.quantity
+      console.log('currentQty', currentQty)
+      let updatedCartItems
+      if (currentQty > 1) {
+        // need to reduce it, not erase it
+        const updatedCartItem = new cartItem(
+          selectedCartItem.quantity - 1,
+          selectedCartItem.productPrice,
+          selectedCartItem.productTitle,
+          selectedCartItem.sum - selectedCartItem.productPrice
+        )
+        updatedCartItems = { ...state.items, [action.pid]: updatedCartItem }
+      } else {
+        updatedCartItems = { ...state.items }
+        delete updatedCartItems[action.pid]
+      }
+      return {
+        ...state,
+        items: updatedCartItems,
+        totalSum: state.totalSum - selectedCartItem.productPrice,
+      }
     default:
       break
   }
