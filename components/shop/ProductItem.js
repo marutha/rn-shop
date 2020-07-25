@@ -19,6 +19,7 @@ const ProductItem = (props) => {
   if (Platform.OS === 'android' && Platform.Version >= 21) {
     Touch = TouchableNativeFeedback
   }
+  console.log('props.price', props.price)
   return (
     <Touch onPress={props.onSelect}>
       <Card style={styles.product}>
