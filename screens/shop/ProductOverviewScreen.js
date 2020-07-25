@@ -1,5 +1,13 @@
-import React from 'react'
-import { View, StyleSheet, FlatList, Button, Platform } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Button,
+  Platform,
+  ActivityIndicator,
+} from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 
@@ -8,19 +16,72 @@ import ProductItem from '../../components/shop/ProductItem'
 import * as cartAction from '../../store/actions/cart'
 import { Header } from 'react-native/Libraries/NewAppScreen'
 import Colors from '../../constants/Colors'
+import { fetchProducts } from '../../store/actions/products'
 
 const ProductOverviewScreen = (props) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState()
   const products = useSelector((state) => state.products.availableProducts)
   const dispatch = useDispatch()
+
+  const loadProducts = async () => {
+    setError(null)
+    setIsLoading(true)
+    try {
+      await dispatch(fetchProducts())
+    } catch (error) {
+      setError(error.message)
+    }
+    setIsLoading(false)
+  }
+  useEffect(() => {
+    const willFocusSub = props.navigation.addListener('willFocus', loadProducts)
+    return () => {
+      willFocusSub.remove()
+    }
+  }, [loadProducts])
+
+  useEffect(() => {
+    loadProducts()
+  }, [dispatch, setIsLoading, setError])
   const selectItem = (id, title) => {
     props.navigation.navigate('ProductDetail', {
       productId: id,
       productTitle: title,
     })
   }
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text>{error}</Text>
+        <Button
+          title="Try again"
+          onPress={loadProducts}
+          color={Colors.primary}
+        />
+      </View>
+    )
+  }
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    )
+  }
+  if (!isLoading && products.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <Text>No products found! Try adding one!</Text>
+      </View>
+    )
+  }
+
   return (
     <View>
       <FlatList
+        onRefresh={loadProducts}
+        refreshing={isLoading}
         data={products}
         keyExtractor={(item) => item.id}
         renderItem={(itemData) => (
@@ -84,6 +145,11 @@ ProductOverviewScreen.navigationOptions = (navData) => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
 
