@@ -27,7 +27,6 @@ const Input = (props) => {
 
   useEffect(() => {
     if (inputState.touched) {
-      console.log('inputState.isvalid', inputState.isValid)
       props.onInputChange(id, inputState.value, inputState.isValid)
     }
   }, [inputState, onInputChange, id])
@@ -49,7 +48,6 @@ const Input = (props) => {
     if (props.minLength != null && text.length < props.minLength) {
       isValid = false
     }
-    console.log('text change', isValid)
     dispatch({ type: INPUT_CHANGE, value: text, isValid: isValid })
   }
   const lostFocusHandler = () => {
