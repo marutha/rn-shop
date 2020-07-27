@@ -70,11 +70,11 @@ const AuthScreen = (props) => {
           login(formState.inputValues.email, formState.inputValues.password)
         )
       }
+      props.navigation.navigate('Shop')
     } catch (error) {
       setError(error.message)
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   useEffect(() => {

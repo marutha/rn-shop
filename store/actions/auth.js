@@ -32,6 +32,8 @@ export const signup = (email, password) => {
     const respData = await response.json()
     dispatch({
       type: SIGNUP,
+      token: respData.idToken,
+      userId: respData.localId,
     })
   }
 }
@@ -68,6 +70,8 @@ export const login = (email, password) => {
     console.log(respData)
     dispatch({
       type: LOGIN,
+      token: respData.idToken,
+      userId: respData.localId,
     })
   }
 }
