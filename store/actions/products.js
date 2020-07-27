@@ -15,7 +15,6 @@ export const fetchProducts = () => {
         throw new Error('Something went wrong!')
       }
       const resData = await response.json()
-      console.log(resData)
       const fetchedProducts = []
       for (const key in resData) {
         const prod = new Product(
@@ -83,7 +82,6 @@ export const createProduct = (title, description, imageUrl, price) => {
 
 export const updateProduct = (id, title, description, imageUrl) => {
   return async (dispatch) => {
-    console.log('sending', id, title, description, imageUrl)
     const response = await fetch(
       `https://rn-shop-80e4e.firebaseio.com/products/${id}.json`,
       {
@@ -98,7 +96,6 @@ export const updateProduct = (id, title, description, imageUrl) => {
         }),
       }
     )
-    console.log(response)
     dispatch({
       type: UPDATE_PRODUCT,
       pid: id,
