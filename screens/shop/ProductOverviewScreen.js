@@ -35,6 +35,13 @@ const ProductOverviewScreen = (props) => {
     setIsLoading(false)
   }
   useEffect(() => {
+    const willFocusSub = props.navigation.addListener('willFocus', loadProducts)
+    return () => {
+      willFocusSub.remove()
+    }
+  }, [loadProducts])
+
+  useEffect(() => {
     loadProducts()
   }, [dispatch, setIsLoading, setError])
   const selectItem = (id, title) => {
