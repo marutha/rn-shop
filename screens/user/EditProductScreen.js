@@ -1,10 +1,12 @@
-import React, { useEffect, useCallback, useReducer } from 'react'
+import React, { useState, useEffect, useCallback, useReducer } from 'react'
 import {
   View,
+  Text,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Alert,
+  ActivityIndicator,
 } from 'react-native'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { useSelector, useDispatch } from 'react-redux'
@@ -12,6 +14,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import HeaderButton from '../../components/UI/HeaderButton'
 import Input from '../../components/UI/Input'
 import { createProduct, updateProduct } from '../../store/actions/products'
+import Colors from '../../constants/Colors'
 
 const FORM_UPDATE = 'UPDATE'
 const formReducer = (state, action) => {
@@ -38,6 +41,8 @@ const formReducer = (state, action) => {
 }
 
 const EditProductScreen = (props) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState()
   const prodId = props.navigation.getParam('productId')
   const editProduct = useSelector((state) =>
     state.products.userProducts.find((prod) => prod.id == prodId)
@@ -59,28 +64,36 @@ const EditProductScreen = (props) => {
     formIsValid: editProduct ? true : false,
   })
 
-  const submitHandler = useCallback(() => {
+  const submitHandler = useCallback(async () => {
     if (!formState.formIsValid) {
       Alert.alert('Wrong input!', 'Please check errors in the form.')
       return
     }
-    if (editProduct) {
-      const act = updateProduct(
-        prodId,
-        formState.inputValues.title,
-        formState.inputValues.description,
-        formState.inputValues.imageUrl
-      )
-      dispatch(act)
-    } else {
-      const act1 = createProduct(
-        formState.inputValues.title,
-        formState.inputValues.description,
-        formState.inputValues.imageUrl,
-        formState.inputValues.price
-      )
-      dispatch(act1)
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      if (editProduct) {
+        const act = updateProduct(
+          prodId,
+          formState.inputValues.title,
+          formState.inputValues.description,
+          formState.inputValues.imageUrl
+        )
+        await dispatch(act)
+      } else {
+        const act1 = createProduct(
+          formState.inputValues.title,
+          formState.inputValues.description,
+          formState.inputValues.imageUrl,
+          formState.inputValues.price
+        )
+        await dispatch(act1)
+      }
+    } catch (error) {
+      setError(error.message)
     }
+    setIsLoading(false)
     props.navigation.goBack()
   }, [dispatch, prodId, formState, inputChangeHandler])
 
@@ -99,6 +112,21 @@ const EditProductScreen = (props) => {
     },
     [dispatchFormState]
   )
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    )
+  }
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text>{error}</Text>
+      </View>
+    )
+  }
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -135,7 +163,7 @@ const EditProductScreen = (props) => {
             errorText="Please enter a valid Price!"
             keyboardType="decimal-pad"
             onInputChange={inputChangeHandler}
-            initialValue={editProduct ? editProduct.price : ''}
+            initialValue={editProduct ? editProduct.price.toFixed(2) : ''}
             initiallyValid={!!editProduct}
             required
             min={0.1}
@@ -183,6 +211,11 @@ EditProductScreen.navigationOptions = (navData) => {
 const styles = StyleSheet.create({
   form: {
     margin: 20,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
 

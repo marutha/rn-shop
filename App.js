@@ -11,12 +11,14 @@ import ReduxThunk from 'redux-thunk'
 import productsReducer from './store/reducers/products'
 import cartReducer from './store/reducers/cart'
 import orderReducer from './store/reducers/order'
-import ShopNavigator from './navigation/ShopNavigator'
+import NavigationContainer from './navigation/NavigationContainer'
+import authReducer from './store/reducers/auth'
 
 const rootReducer = combineReducers({
   products: productsReducer,
   cart: cartReducer,
   orders: orderReducer,
+  auth: authReducer,
 })
 
 // const store = createStore(rootReducer, composeWithDevTools())
@@ -41,7 +43,7 @@ export default function App() {
   }
   return (
     <Provider store={store}>
-      <ShopNavigator />
+      <NavigationContainer />
     </Provider>
   )
 }
