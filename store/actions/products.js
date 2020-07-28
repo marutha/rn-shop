@@ -93,7 +93,6 @@ export const createProduct = (title, description, imageUrl, price) => {
 export const updateProduct = (id, title, description, imageUrl) => {
   return async (dispatch, getState) => {
     const token = getState().auth.token
-    console.log('token', token)
     const response = await fetch(
       `https://rn-shop-80e4e.firebaseio.com/products/${id}.json?auth=${token}`,
       {
@@ -112,7 +111,6 @@ export const updateProduct = (id, title, description, imageUrl) => {
       throw new Error('Something went wrong')
     }
     const responseData = await response.json()
-    console.log(responseData)
     dispatch({
       type: UPDATE_PRODUCT,
       pid: id,

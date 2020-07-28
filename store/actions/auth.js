@@ -1,5 +1,43 @@
-export const SIGNUP = 'SIGNUP'
-export const LOGIN = 'LOGIN'
+import { AsyncStorage } from 'react-native'
+// export const SIGNUP = 'SIGNUP'
+// export const LOGIN = 'LOGIN'
+export const AUTHENTICATE = 'AUTHENTICATE'
+export const LOGOUT = 'LOGOUT'
+
+let timer
+
+export const authenticate = (userId, token, expiryTime) => {
+  return (dispatch) => {
+    dispatch(setLogoutTimer(expiryTime))
+    dispatch({
+      type: AUTHENTICATE,
+      userId,
+      token,
+    })
+  }
+}
+
+export const logout = () => {
+  clearStorage()
+  clearLogoutTimer()
+  return {
+    type: LOGOUT,
+  }
+}
+
+const clearLogoutTimer = () => {
+  if (timer) {
+    clearTimeout(timer)
+  }
+}
+
+const setLogoutTimer = (expirationTime) => {
+  return (dispatch) => {
+    timer = setTimeout(() => {
+      dispatch(logout())
+    }, expirationTime)
+  }
+}
 
 export const signup = (email, password) => {
   return async (dispatch) => {
@@ -30,11 +68,13 @@ export const signup = (email, password) => {
       throw new Error('Something went wrong')
     }
     const respData = await response.json()
-    dispatch({
-      type: SIGNUP,
-      token: respData.idToken,
-      userId: respData.localId,
-    })
+    dispatch(
+      authenticate(
+        respData.localId,
+        respData.idToken,
+        parseInt(respData.expiresIn) * 1000
+      )
+    )
   }
 }
 
@@ -67,11 +107,31 @@ export const login = (email, password) => {
       throw new Error(message)
     }
     const respData = await response.json()
-    console.log(respData)
-    dispatch({
-      type: LOGIN,
-      token: respData.idToken,
-      userId: respData.localId,
-    })
+    dispatch(
+      authenticate(
+        respData.localId,
+        respData.idToken,
+        parseInt(respData.expiresIn) * 1000
+      )
+    )
+    const expirationDate = new Date(
+      new Date().getTime() + parseInt(respData.expiresIn) * 1000
+    )
+    saveDataToStorage(respData.idToken, respData.localId, expirationDate)
   }
+}
+
+const saveDataToStorage = (token, userId, expiryDate) => {
+  AsyncStorage.setItem(
+    'userData',
+    JSON.stringify({
+      token,
+      userId,
+      expiryDate,
+    })
+  )
+}
+
+const clearStorage = () => {
+  AsyncStorage.removeItem('userData')
 }
